@@ -14,6 +14,9 @@ A CLI tool that splits markdown files into hierarchical folder structures based 
 ## Installation
 
 ```bash
+# From PyPI
+pip install md-hierarchy
+
 # From source
 pip install -e .
 

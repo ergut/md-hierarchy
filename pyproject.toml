@@ -5,14 +5,36 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "md-hierarchy"
 version = "0.1.0"
-description = "CLI tool to split and merge markdown files based on heading hierarchy"
+description = "Transform large markdown files into hierarchical folder structures for better navigation and AI-assisted editing"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
+authors = [
+    {name = "Salih Ergut", email = "salih.ergut@gmail.com"}
+]
+keywords = ["markdown", "cli", "hierarchy", "documentation", "llm", "ai", "split", "merge"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
 dependencies = [
     "markdown-it-py>=3.0.0",
     "click>=8.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ergut/md-hierarchy"
+Repository = "https://github.com/ergut/md-hierarchy"
+Issues = "https://github.com/ergut/md-hierarchy/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -22,6 +44,9 @@ dev = [
 
 [project.scripts]
 md-hierarchy = "md_hierarchy.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
