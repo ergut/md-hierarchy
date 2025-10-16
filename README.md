@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo-banner.png" alt="md-hierarchy logo" width="600">
+</p>
+
 # md-hierarchy
 
 A CLI tool that splits markdown files into hierarchical folder structures based on heading levels, and can reconstruct the original markdown from the split pieces.
