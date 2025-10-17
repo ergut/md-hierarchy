@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from .types import MergeResult
-from .utils import validate_directory_exists
+from .utils import validate_directory_exists, INTRO_FILENAME, FRONTMATTER_FILENAME
 
 
 def merge_markdown(
@@ -34,6 +34,12 @@ def merge_markdown(
 
     lines = []
     files_merged_counter = {"count": 0}
+
+    # Process frontmatter file at root if it exists
+    frontmatter_path = input_dir / FRONTMATTER_FILENAME
+    if frontmatter_path.exists() and frontmatter_path.is_file():
+        _add_file_content(frontmatter_path, lines, verbose)
+        files_merged_counter["count"] += 1
 
     # Process directory recursively
     _process_directory(input_dir, lines, level=1, verbose=verbose, files_merged_counter=files_merged_counter)
@@ -75,15 +81,15 @@ def _process_directory(
     # Get all items in directory, sorted
     items = sorted(dir_path.iterdir(), key=lambda x: _sort_key(x.name))
 
-    # First, process README.md if it exists (parent content)
-    readme_path = dir_path / "README.md"
-    if readme_path.exists() and readme_path.is_file():
-        _add_file_content(readme_path, lines, verbose)
+    # First, process intro file if it exists (parent heading and content)
+    intro_path = dir_path / INTRO_FILENAME
+    if intro_path.exists() and intro_path.is_file():
+        _add_file_content(intro_path, lines, verbose)
         files_merged_counter["count"] += 1
 
     # Then process numbered files and folders
     for item in items:
-        if item.name == "README.md":
+        if item.name == INTRO_FILENAME or item.name == FRONTMATTER_FILENAME:
             continue  # Already processed
 
         if item.is_file() and item.suffix == ".md":
@@ -141,9 +147,10 @@ def _sort_key(name: str) -> Tuple[int, str]:
         number = int(match.group(1))
         return (number, match.group(2))
 
-    # Special case: README.md always first
-    if name == "README.md":
-        return (0, "")
+    # Special case: intro and frontmatter files sort first
+    # (though they're handled separately, this ensures correct ordering if encountered)
+    if name == INTRO_FILENAME or name == FRONTMATTER_FILENAME:
+        return (-1, name)
 
     # Non-numbered items sort after numbered ones
     return (9999, name)

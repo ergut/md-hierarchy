@@ -86,34 +86,48 @@ When splitting at level 3, the tool creates this structure:
 
 ```
 output-dir/
+├── 00-__frontmatter__.md            # Content before first heading (if exists)
 ├── 01-Introduction/
-│   ├── README.md                    # Content directly under H1
+│   ├── 00-__intro__.md              # H1 heading + intro content (always created)
 │   ├── 01-Background/
-│   │   ├── README.md                # Content directly under H2
+│   │   ├── 00-__intro__.md          # H2 heading + intro content (always created)
 │   │   ├── 01-Problem-Statement.md  # H3 section
 │   │   └── 02-Research-Gap.md       # H3 section
 │   └── 02-Objectives/
+│       ├── 00-__intro__.md          # H2 heading (even if no intro content)
 │       └── 01-Primary-Goals.md
 └── 02-Methodology/
-    └── README.md
+    └── 00-__intro__.md              # H1 heading + content
 ```
 
 ## File Naming Convention
 
 - **Folders:** `NN-Sanitized-Title/` (e.g., `01-Introduction/`)
-- **Files:** `NN-Sanitized-Title.md` or `README.md`
+- **Intro files:** `00-__intro__.md` (always created for every heading folder)
+- **Frontmatter:** `00-__frontmatter__.md` (at root, only if content exists before first heading)
+- **Section files:** `NN-Sanitized-Title.md` (e.g., `01-Problem-Statement.md`)
 - Numbers are zero-padded (01, 02, ..., 99)
 - Special characters (`/ \ : * ? " < > |`) are removed
 - Spaces are replaced with hyphens
 - Maximum length: 50 characters
+
+### Key Design Decisions
+
+- `00-__intro__.md` is **always created** for every heading folder, even if empty
+  - This provides a consistent structure and an easy place to add intro text later
+  - Contains the heading declaration and any content before child sections
+- The `00-` prefix ensures intro files sort first in directory listings
+- The `__intro__` naming (double underscore) clearly marks these as special/meta files
+- Frontmatter files are created at the root only when pre-heading content exists
 
 ## Edge Cases Handled
 
 1. **Empty headings** → `Untitled-Section-N`
 2. **Duplicate titles** → Append `-2`, `-3`, etc.
 3. **Skipped levels** (H1 → H3) → Insert `00-Content/` folder
-4. **Content before first heading** → `00-Frontmatter/README.md`
+4. **Content before first heading** → `00-__frontmatter__.md` at root
 5. **Heading attributes** (e.g., `{#id .class}`) → Preserved in content
+6. **Headings with no intro content** → `00-__intro__.md` still created (with just the heading)
 
 ## Round-Trip Compatibility
 

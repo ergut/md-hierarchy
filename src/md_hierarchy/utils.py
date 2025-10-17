@@ -5,6 +5,11 @@ from pathlib import Path
 from typing import Dict, Set
 
 
+# Special filenames
+INTRO_FILENAME = "00-__intro__.md"
+FRONTMATTER_FILENAME = "00-__frontmatter__.md"
+
+
 def sanitize_filename(title: str, max_length: int = 50) -> str:
     """Sanitize a heading title for use as a filename or folder name.
 

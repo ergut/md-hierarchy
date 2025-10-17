@@ -121,7 +121,10 @@ def _find_parent(current: HeadingNode, target_level: int) -> HeadingNode:
         return current
 
     # Otherwise, recursively check children (depth-first, so we get the most recent)
+    # Skip frontmatter nodes - they're not part of the heading hierarchy
     for child in reversed(current.children):
+        if child.title == "__frontmatter__":
+            continue  # Skip frontmatter
         if child.level < target_level:
             # This child could be a parent or ancestor
             result = _find_parent(child, target_level)

@@ -14,8 +14,32 @@ from . import __version__
 def cli():
     """md-hierarchy: Split and merge markdown files based on heading hierarchy.
 
-    Split a markdown file into a hierarchical folder structure based on headings,
-    or merge a folder structure back into a single markdown file.
+    \b
+    A tool for working with large markdown documents by converting them into
+    navigable folder structures and back.
+
+    \b
+    Common workflows:
+      • Split a long document into sections for easier editing
+      • Organize documentation into a folder-based structure
+      • Merge edited sections back into a single document
+      • Round-trip conversion without losing content
+
+    \b
+    Available commands:
+      split   Convert markdown file → folder structure
+      merge   Convert folder structure → markdown file
+
+    \b
+    Quick start:
+      $ md-hierarchy split document.md ./output
+      $ # Edit files in ./output/...
+      $ md-hierarchy merge ./output updated.md
+
+    \b
+    For detailed help on a command:
+      $ md-hierarchy split --help
+      $ md-hierarchy merge --help
     """
     pass
 
@@ -47,16 +71,37 @@ def cli():
 def split(input_file, output_dir, level, overwrite, verbose, dry_run):
     """Split a markdown file into hierarchical folder structure.
 
-    Extracts sections at the specified heading level as individual files,
-    creating a navigable folder hierarchy based on the document structure.
+    Converts a markdown file with headings into a navigable folder hierarchy.
+    Each heading level becomes a directory level, with content extracted as
+    individual markdown files at your target level.
 
+    INPUT_FILE: Path to the markdown file to split
+
+    OUTPUT_DIR: Directory where the folder structure will be created
+
+    \b
     Examples:
+      # Split at H3 level (default) - most common use case
+      $ md-hierarchy split proposal.md ./output
 
-        md-hierarchy split proposal.md ./output
+      Creates:
+        output/01-Introduction/00-__intro__.md
+        output/01-Introduction/01-Background/00-__intro__.md
+        output/01-Introduction/01-Background/01-Motivation.md
+        output/01-Introduction/01-Background/02-Goals.md
+        output/02-Methods/00-__intro__.md
 
-        md-hierarchy split proposal.md ./output --level 2
+      00-__intro__.md files contain heading + intro content (always created).
+      H3 sections become individual .md files.
 
-        md-hierarchy split proposal.md ./output --level 3 --overwrite
+      # Split at H2 level - creates fewer, larger files
+      $ md-hierarchy split proposal.md ./output --level 2
+
+      # Test what will happen without creating files
+      $ md-hierarchy split proposal.md ./output --dry-run
+
+      # Overwrite existing output directory
+      $ md-hierarchy split proposal.md ./output --overwrite
     """
     try:
         result = split_markdown(
@@ -104,14 +149,36 @@ def split(input_file, output_dir, level, overwrite, verbose, dry_run):
 def merge(input_dir, output_file, verbose):
     """Merge hierarchical folder structure into a single markdown file.
 
-    Reconstructs a markdown file from a folder structure created by the split
-    command, following the numbered naming convention to maintain proper order.
+    Reconstructs a markdown file from a folder structure created by split.
+    Folders are processed in numerical order (01, 02, ...) and converted
+    back to their original heading hierarchy.
 
+    INPUT_DIR: Directory containing the split markdown structure
+
+    OUTPUT_FILE: Path where the merged markdown file will be written
+
+    \b
     Examples:
+      # Merge split folders back into a single file
+      $ md-hierarchy merge ./output merged.md
 
-        md-hierarchy merge ./output merged.md
+      Result: All folders and files in ./output are combined into merged.md
+      with proper heading levels restored (folder depth = heading level).
 
-        md-hierarchy merge ./split-docs final.md --verbose
+      # Merge with detailed progress logging
+      $ md-hierarchy merge ./split-docs final.md --verbose
+
+      Shows each file being processed:
+        Processing: 01-Introduction/00-__intro__.md
+        Processing: 01-Introduction/01-Background/00-__intro__.md
+        Processing: 01-Introduction/01-Background/01-Motivation.md
+        ...
+        Merged 15 files into final.md
+
+      # Perfect round-trip example
+      $ md-hierarchy split document.md ./split-output
+      $ md-hierarchy merge ./split-output reconstructed.md
+      $ diff document.md reconstructed.md  # Should be identical
     """
     try:
         result = merge_markdown(

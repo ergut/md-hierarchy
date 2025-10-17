@@ -12,6 +12,8 @@ from .utils import (
     DuplicateNameTracker,
     validate_file_exists,
     validate_level,
+    INTRO_FILENAME,
+    FRONTMATTER_FILENAME,
 )
 
 
@@ -83,19 +85,15 @@ def split_markdown(
         None
     )
     if frontmatter_node and frontmatter_node.content:
-        frontmatter_dir = output_dir / "00-Frontmatter"
+        frontmatter_path = output_dir / FRONTMATTER_FILENAME
         if not dry_run:
-            frontmatter_dir.mkdir(exist_ok=True)
-            readme_path = frontmatter_dir / "README.md"
-            readme_path.write_text(frontmatter_node.content + '\n', encoding='utf-8')
+            frontmatter_path.write_text(frontmatter_node.content + '\n', encoding='utf-8')
             if verbose:
-                print(f"Created: {readme_path}")
+                print(f"Created: {frontmatter_path}")
             files_count += 1
-            folders_count += 1
         else:
-            print(f"Would create: {frontmatter_dir}/README.md")
+            print(f"Would create: {frontmatter_path}")
             files_count += 1
-            folders_count += 1
 
     # Process regular headings
     regular_children = [
@@ -206,15 +204,14 @@ def _process_node(
 
         stats["folders"] += 1
 
-        # Create README.md if there's direct content
-        if node.content.strip():
-            _write_readme(
-                node=node,
-                path=node_path,
-                verbose=verbose,
-                dry_run=dry_run,
-            )
-            stats["files"] += 1
+        # Always create intro file (even if content is empty)
+        _write_intro(
+            node=node,
+            path=node_path,
+            verbose=verbose,
+            dry_run=dry_run,
+        )
+        stats["files"] += 1
 
         # Handle skipped levels - insert synthetic folders
         if node.children:
@@ -301,21 +298,21 @@ def _extract_as_file(
             print(f"Would create: {file_path}")
 
 
-def _write_readme(
+def _write_intro(
     node: HeadingNode,
     path: Path,
     verbose: bool,
     dry_run: bool,
 ) -> None:
-    """Write README.md for a folder (parent heading content).
+    """Write intro file for a folder (parent heading and its direct content).
 
     Args:
-        node: HeadingNode with content
+        node: HeadingNode with heading and content
         path: Directory path
         verbose: Verbose output flag
         dry_run: Dry run flag
     """
-    readme_path = path / "README.md"
+    intro_path = path / INTRO_FILENAME
 
     lines = []
 
@@ -334,12 +331,12 @@ def _write_readme(
     content = '\n'.join(lines) + '\n'
 
     if not dry_run:
-        readme_path.write_text(content, encoding='utf-8')
+        intro_path.write_text(content, encoding='utf-8')
         if verbose:
-            print(f"Created: {readme_path}")
+            print(f"Created: {intro_path}")
     else:
         if verbose:
-            print(f"Would create: {readme_path}")
+            print(f"Would create: {intro_path}")
 
 
 def _append_children_content(node: HeadingNode, lines: list) -> None:
